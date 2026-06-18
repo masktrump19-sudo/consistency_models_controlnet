@@ -1,0 +1,37 @@
+# Compiled python modules.
+*.pyc
+
+# Byte-compiled
+_pycache__/
+.cache/
+.idea/
+
+# Python egg metadata, regenerated from source files by setuptools.
+/*.egg-info
+.eggs/
+
+# PyPI distribution artifacts.
+build/
+dist/
+
+# Tests
+.pytest_cache/
+
+# Other
+*.DS_Store
+
+# Edge-ControlNet additions
+__pycache__/
+data/
+checkpoints/
+*.pt
+demo_out/
+out/
+samples/
+openai-*/        # default logger output dirs
+*.npz
+
+# local tooling / deps (not part of the project)
+.claude/
+node_modules/
+hf_cache/

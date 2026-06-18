@@ -1,0 +1,35 @@
+# Conda environment for the edge-ControlNet consistency-model project.
+#
+#   conda env create -f environment.yml          # creates env named "cm"
+#   conda activate cm
+#   pip install -e . --no-deps                    # make `cm` importable (skips flash-attn)
+#
+# NOTE on CUDA: the pip torch line below targets CUDA 11.8 (good for RTX A6000).
+# If your driver is older/newer, change cu118 -> cu117 / cu121 to match.
+# flash-attn==0.2.8 is intentionally OMITTED (it does not build on modern stacks);
+# the UNet automatically falls back to a numerically-equivalent plain-torch
+# attention, so pretrained checkpoints still load and run.
+name: cm
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+  - pip
+  - mpi4py          # conda-forge bundles openmpi, so no system MPI is needed
+  - openmpi
+  - pip:
+      - --extra-index-url https://download.pytorch.org/whl/cu118
+      - torch==2.0.1
+      - torchvision==0.15.2
+      - "numpy<2"
+      - piq==0.7.0
+      - blobfile>=1.0.5
+      - einops
+      - opencv-python-headless
+      - pillow
+      - scipy
+      - tqdm
+      - matplotlib
+      - requests
+      - gradio==4.44.1
+      - "huggingface_hub<1.0"   # gradio 4.44 needs HfFolder, removed in hub 1.0
