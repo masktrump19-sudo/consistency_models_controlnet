@@ -49,15 +49,25 @@
 
 <div align="center">
 
-| 🏰 建筑 | 🦦 动物 | 🚚 车辆 |
-|:---:|:---:|:---:|
-| ![castle](examples/c700_multi.png) | ![animal](examples/c039_multi.png) | ![vehicle](examples/c248_multi.png) |
-| 🖥️ 物体 | 🧸 玩具 | 🐟 其它 |
-| ![object](examples/c551_multi.png) | ![teddy](examples/c850_multi.png) | ![fish](examples/c000_multi.png) |
+| 🏰 建筑 | 🦮 狗 | 🚚 车辆 | 🖥️ 显示器 |
+|:---:|:---:|:---:|:---:|
+| ![](examples/c700_multi.png) | ![](examples/show_c207.png) | ![](examples/c248_multi.png) | ![](examples/c551_multi.png) |
+| 🦦 动物 | 🌆 街景 | 🧸 玩具 | 🐟 鱼 |
+| ![](examples/c039_multi.png) | ![](examples/show_c281.png) | ![](examples/c850_multi.png) | ![](examples/c000_multi.png) |
 
 </div>
 
 *更多示例见 [`examples/`](examples/)。模型在 ImageNet-64 上训练，输出为 64×64；演示重点是「结构可控性」。*
+
+---
+
+## 📦 模型权重
+
+训练好的 ControlNet 权重（ImageNet-64，40000 步，EMA）可直接下载：
+
+> 🔗 **[`ema_0.9999_040000.pt` (1.6 GB)](https://github.com/masktrump19-sudo/consistency_models_controlnet/releases/download/v1.0/ema_0.9999_040000.pt)** &nbsp;·&nbsp; 全部见 [**Releases**](https://github.com/masktrump19-sudo/consistency_models_controlnet/releases)
+
+搭配冻结主干（`scripts/download_checkpoints.sh` 下载的 `cd_imagenet64_lpips.pt`）一起使用即可。
 
 ---
 
@@ -157,9 +167,9 @@ tests/smoke_controlnet.py  17 项 CPU 正确性测试
 
 | | |
 |---|---|
-| **姓名** | 「请填写你的姓名」 |
-| **学校** | 「请填写你的学校」 |
-| **邮箱** | masktrump19@gmail.com |
+| **姓名** | 黄永庆 (Huang Yongqing) |
+| **学校** | 中山大学 (Sun Yat-sen University) |
+| **邮箱** | huangyq296@mail2.sysu.edu.cn |
 | **GitHub** | [@masktrump19-sudo](https://github.com/masktrump19-sudo) |
 
 ## 📄 License
