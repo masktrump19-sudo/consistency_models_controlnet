@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Edge-ControlNet for Consistency Models: inference data flow</title>
+  <desc id="desc">A reference image is converted to a Canny edge map and encoded as a hint for a trainable copy of the UNet encoder and middle block. The trainable branch and frozen UNet share the scaled noisy input, noise timestep, and optional class label. Zero-initialized one-by-one convolutions produce control residuals for the frozen UNet middle output and decoder skip connections. The network output F is combined with the original noisy state using c_skip and c_out to produce the denoised image.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#596778"/></marker>
+    <marker id="arrow-teal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#087e8b"/></marker>
+    <style>
+      text{font-family:Arial,Helvetica,sans-serif;fill:#263343}
+      .title{font-size:27px;font-weight:700}
+      .subtitle{font-size:15px;fill:#677386}
+      .label{font-size:18px;font-weight:700}
+      .body{font-size:16px}
+      .small{font-size:14px;fill:#5c6a7d}
+      .tag{font-size:12px;font-weight:700;letter-spacing:1.1px}
+      .neutral{fill:#f6f8fb;stroke:#d8dfe8;stroke-width:1.5}
+      .trainable{fill:#edf9f7;stroke:#74bdb6;stroke-width:1.5}
+      .frozen{fill:#eef3fb;stroke:#94aed2;stroke-width:1.5}
+      .wire{fill:none;stroke:#596778;stroke-width:2.2;stroke-linejoin:round;marker-end:url(#arrow)}
+      .control{fill:none;stroke:#087e8b;stroke-width:2.5;stroke-linejoin:round;marker-end:url(#arrow-teal)}
+    </style>
+  </defs>
+  <rect width="1200" height="800" rx="20" fill="#fff"/>
+  <rect x="1" y="1" width="1198" height="798" rx="19" fill="none" stroke="#e2e7ee"/>
+  <text x="40" y="48" class="title">Edge-ControlNet for Consistency Models</text>
+  <text x="40" y="74" class="subtitle">One denoiser evaluation · edge conditioning without updating the pretrained backbone</text>
+  <rect x="906" y="30" width="12" height="12" rx="3" fill="#74bdb6"/>
+  <text x="925" y="41" class="small">Trainable</text>
+  <rect x="1020" y="30" width="12" height="12" rx="3" fill="#94aed2"/>
+  <text x="1039" y="41" class="small">Frozen</text>
+
+  <!-- Edge conditioning has its own route into the trainable branch. -->
+  <rect x="40" y="112" width="185" height="80" rx="12" class="neutral"/>
+  <text x="132.5" y="145" text-anchor="middle" class="label">Reference image</text>
+  <text x="132.5" y="170" text-anchor="middle" class="small">structure to preserve</text>
+  <path d="M225 152 H265" class="wire"/>
+  <rect x="270" y="112" width="155" height="80" rx="12" class="neutral"/>
+  <text x="347.5" y="145" text-anchor="middle" class="label">Canny</text>
+  <text x="347.5" y="170" text-anchor="middle" class="small">edge extraction</text>
+  <path d="M425 152 H465" class="wire"/>
+  <rect x="470" y="112" width="180" height="80" rx="12" class="neutral"/>
+  <text x="560" y="145" text-anchor="middle" class="label">Edge map c</text>
+  <text x="560" y="170" text-anchor="middle" class="small">fixed across noise levels</text>
+  <path d="M650 152 H690" class="control"/>
+  <rect x="695" y="112" width="270" height="80" rx="12" class="trainable"/>
+  <text x="830" y="145" text-anchor="middle" class="label">Hint encoder</text>
+  <text x="830" y="170" text-anchor="middle" class="small">last convolution starts at zero</text>
+  <path d="M830 192 V232 H532 V282" class="control"/>
+  <text x="550" y="223" class="small">add after the first encoder block</text>
+
+  <!-- Shared model inputs fan out before reaching either branch. -->
+  <rect x="40" y="300" width="245" height="270" rx="14" class="neutral"/>
+  <text x="62" y="333" class="tag">SHARED INPUTS</text>
+  <text x="62" y="371" class="label">Noisy state x_t</text>
+  <text x="62" y="409" class="body">x = c_in(σ) · x_t</text>
+  <text x="62" y="447" class="body">Noise timestep t(σ)</text>
+  <text x="62" y="485" class="body">Class y, if enabled</text>
+  <text x="62" y="534" class="small">Same x, t, y for both branches</text>
+  <path d="M285 432 H340 V345 H400" class="wire"/>
+  <path d="M340 432 V535 H400" class="wire"/>
+  <circle cx="340" cy="432" r="4" fill="#596778"/>
+
+  <!-- Trainable ControlNet path. -->
+  <rect x="405" y="287" width="255" height="116" rx="14" class="trainable"/>
+  <text x="427" y="315" class="tag" style="fill:#087e8b">CONTROLNET BRANCH</text>
+  <text x="427" y="346" class="label">Trainable encoder copy</text>
+  <text x="427" y="375" class="body">+ middle block</text>
+  <path d="M660 345 H740" class="control"/>
+  <rect x="745" y="287" width="220" height="116" rx="14" class="trainable"/>
+  <text x="767" y="320" class="label">1 × 1 zero convs</text>
+  <text x="767" y="351" class="body">Per-skip + middle</text>
+  <text x="767" y="379" class="small">zero-initialized residuals</text>
+  <path d="M855 403 V449 H532 V477" class="control"/>
+  <text x="558" y="438" class="small" style="fill:#087e8b">add to middle + decoder skips</text>
+
+  <!-- Frozen backbone and predicted network output. -->
+  <rect x="405" y="482" width="255" height="116" rx="14" class="frozen"/>
+  <text x="427" y="510" class="tag" style="fill:#426792">PRETRAINED BACKBONE</text>
+  <text x="427" y="541" class="label">Frozen UNet</text>
+  <text x="427" y="570" class="body">with control residuals</text>
+  <path d="M660 540 H740" class="wire"/>
+  <rect x="745" y="482" width="220" height="116" rx="14" class="neutral"/>
+  <text x="855" y="529" text-anchor="middle" class="label">Network output F</text>
+  <text x="855" y="559" text-anchor="middle" class="small">from ControlledModel</text>
+
+  <!-- The boundary skip uses the original, unscaled noisy state. -->
+  <path d="M162 570 V688 H400" class="wire"/>
+  <text x="182" y="675" class="small">original x_t</text>
+  <path d="M855 598 V650" class="wire"/>
+  <rect x="405" y="655" width="560" height="70" rx="12" class="neutral"/>
+  <text x="685" y="683" text-anchor="middle" class="small">Consistency-model output parameterization</text>
+  <text x="685" y="709" text-anchor="middle" class="label">f = c_skip(σ) · x_t + c_out(σ) · F</text>
+  <path d="M965 690 H1000" class="wire"/>
+  <rect x="1005" y="655" width="155" height="70" rx="12" fill="#f0f5f2" stroke="#a8c2b2" stroke-width="1.5"/>
+  <text x="1082.5" y="685" text-anchor="middle" class="label">Denoised</text>
+  <text x="1082.5" y="708" text-anchor="middle" class="label">image</text>
+  <text x="40" y="768" class="small">Default setup: freeze_unet=True · only_mid_control=False · with consistency-model boundary scalings</text>
+</svg>

@@ -73,15 +73,14 @@
 
 ## 🧠 方法概览
 
-```
-   任意图片 ──[Canny]──► 边缘图 c  ┐
-                                  │
-   噪声 x_t ───────────────────────┤──►  ControlledModel
-                                  │        ├─ ControlNet(x_t, c, t, y):  可训练编码器副本 + 零卷积残差
-   类别 y ─────────────────────────┘        └─ 冻结 UNet(x_t, t, y, + 残差):  解码器 skip += 残差
-                                                         │
-                                            f = c_skip(σ)·x_t + c_out(σ)·F   ──►  生成图
-```
+![Edge-ControlNet 方法概览：Canny 边缘经过提示编码器进入可训练 ControlNet；它与冻结 UNet 共用缩放后的噪声、时间和类别输入，通过零卷积向中间层及解码器跳连注入残差，最后由一致性模型参数化得到生成图。](docs/assets/method-overview.svg)
+
+*绿色为可训练 ControlNet 分支，蓝色为冻结主干；图中展示一次去噪网络调用。单步或多步采样由外层采样器控制。[查看完整矢量图](docs/assets/method-overview.svg)*
+
+- **边缘条件**：参考图经 Canny 得到 `c`，由 hint encoder 编码后加到 ControlNet 的第一个编码块输出。
+- **共享输入**：ControlNet 与冻结 UNet 都接收 `c_in(σ) · x_t`、变换后的时间 `t(σ)` 和类别 `y`（启用类别条件时）。
+- **残差注入**：ControlNet 的编码器与中间块特征经零初始化的 `1×1` 卷积，分别加到主干的 **中间层输出与解码器 skip**；并不是两个网络的最终输出相加。
+- **输出组合**：`KarrasDenoiser.denoise()` 将网络输出 `F` 与 **未缩放的** `x_t` 按 `f = c_skip(σ) · x_t + c_out(σ) · F` 组合。
 
 **三个关键设计（详见技术文档）：**
 
